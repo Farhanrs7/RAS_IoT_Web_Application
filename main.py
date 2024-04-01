@@ -13,6 +13,4 @@ def create_app():
 application = create_app()
 
 if __name__ == "__main__":
-    application.debug = True
-    application.port = 8080
-    application.run()
+    application.run(port = 8080, debug = True)
