@@ -1,0 +1,141 @@
+.u-section-1 .u-sheet-1 {
+  min-height: 606px;
+}
+
+.u-section-1 .u-image-1 {
+  --radius: 10px;
+  width: 250px;
+  height: 137px;
+  margin: 43px auto 0 82px;
+}
+
+.u-section-1 .u-text-1 {
+  margin: -83px auto 0 351px;
+}
+
+.u-section-1 .u-text-2 {
+  margin: -29px auto 0;
+}
+
+.u-section-1 .u-list-1 {
+  width: 238px;
+  margin: -47px 243px 0 auto;
+}
+
+.u-section-1 .u-repeater-1 {
+  min-height: 404px;
+  grid-auto-columns: 100%;
+  grid-template-columns: 100%;
+  grid-gap: 104px 104px;
+  width: 238px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.u-section-1 .u-container-layout-1 {
+  padding: 10px;
+}
+
+.u-section-1 .u-btn-1 {
+  margin: 0 auto 0 0;
+}
+
+.u-section-1 .u-container-layout-2 {
+  padding: 10px;
+}
+
+.u-section-1 .u-btn-2 {
+  margin: 0 auto 0 0;
+}
+
+.u-section-1 .u-container-layout-3 {
+  padding: 10px;
+}
+
+.u-section-1 .u-btn-3 {
+  margin: 0 auto 0 0;
+}
+
+.u-section-1 .u-image-2 {
+  width: 212px;
+  height: 115px;
+  margin: -259px auto 0 101px;
+}
+
+.u-section-1 .u-text-3 {
+  margin: -72px auto 0;
+}
+
+.u-section-1 .u-text-4 {
+  margin: -29px auto 0 455px;
+}
+
+.u-section-1 .u-image-3 {
+  width: 160px;
+  height: 160px;
+  margin: 78px auto 0 130px;
+}
+
+.u-section-1 .u-text-5 {
+  margin: -98px auto 60px 351px;
+}
+
+@media (max-width: 1199px) {
+  .u-section-1 .u-text-1 {
+    margin-left: 289px;
+  }
+
+  .u-section-1 .u-text-4 {
+    margin-left: 375px;
+  }
+
+  .u-section-1 .u-text-5 {
+    margin-left: 289px;
+  }
+}
+
+@media (max-width: 991px) {
+  .u-section-1 .u-text-1 {
+    margin-left: 221px;
+  }
+
+  .u-section-1 .u-text-4 {
+    margin-left: 287px;
+  }
+
+  .u-section-1 .u-text-5 {
+    margin-left: 221px;
+  }
+}
+
+@media (max-width: 767px) {
+  .u-section-1 .u-text-1 {
+    margin-left: 166px;
+  }
+
+  .u-section-1 .u-text-4 {
+    margin-left: 215px;
+  }
+
+  .u-section-1 .u-text-5 {
+    margin-left: 166px;
+  }
+}
+
+@media (max-width: 575px) {
+  .u-section-1 .u-text-1 {
+    margin-left: 105px;
+  }
+
+  .u-section-1 .u-list-1 {
+    margin-right: 102px;
+  }
+
+  .u-section-1 .u-text-4 {
+    margin-left: 135px;
+  }
+
+  .u-section-1 .u-text-5 {
+    margin-left: 105px;
+  }
+}

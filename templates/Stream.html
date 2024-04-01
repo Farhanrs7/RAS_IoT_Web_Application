@@ -1,0 +1,19 @@
+{% extends "Base.html" %}
+{% block title %} Stream {% endblock %}
+{% block body %}
+<body class="u-body u-xl-mode" data-style="blank" data-posts="" data-global-section-properties="{&quot;colorings&quot;:{&quot;light&quot;:[&quot;clean&quot;],&quot;colored&quot;:[&quot;clean&quot;],&quot;dark&quot;:[&quot;dark&quot;]}}" data-source="" data-lang="en" data-page-sections-style="[{&quot;name&quot;:&quot;blank&quot;}]" data-page-coloring-types="{&quot;light&quot;:[&quot;clean&quot;],&quot;colored&quot;:[&quot;clean&quot;],&quot;dark&quot;:[&quot;dark&quot;]}" data-page-category="&quot;Basic&quot;">
+  <section class="u-clearfix u-block-d3f5-1" custom-posts-hash="[]" data-style="blank" data-section-properties="{&quot;margin&quot;:&quot;none&quot;,&quot;stretch&quot;:true}" id="sec-b065" data-id="d3f5">
+    <div class="u-clearfix u-sheet u-block-d3f5-2" style="display: grid;justify-content: center;grid-template-columns: 100%;padding: 5%;">
+      <div class="u-container-style u-group u-palette-5-base u-block-d3f5-3" style="width: 75%;height: fit-content; justify-self:center">
+        <div class="u-container-layout u-block-d3f5-4">
+          <img src="{{ url_for('views.video_feed') }}" style="width:100%"  onerror="this.style.display='none'"/>
+        </div>
+      </div>
+      <div style="display: flex;justify-content: center;column-gap: 10%;">
+        <a href="{{ url_for('views.play') }}" class="u-border-2 u-border-palette-4-base u-btn u-btn-round u-button-style u-hover-palette-4-base u-none u-radius u-text-black u-text-hover-white u-block-d3f5-5">Start</a>
+        <a href="{{ url_for('views.stop') }}" class="u-border-2 u-border-palette-2-base u-btn u-btn-round u-button-style u-hover-palette-2-base u-none u-radius u-text-black u-text-hover-white u-block-d3f5-6">Stop</a>
+      </div>
+    </div>
+  </section>
+</body>
+{% endblock %}
