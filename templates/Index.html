@@ -5,9 +5,19 @@
     <meta charset="utf-8">
     <meta name="keywords" content="">
     <meta name="description" content="">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="static/style/nicepage.css" media="screen">
     <link rel="stylesheet" href="static/style/Home.css" media="screen">
-    <script class="u-script" type="text/javascript" src="static/style/jquery.js" defer=""></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1615.0.min.js"></script>
+    <script src="https://unpkg.com/@ungap/url-search-params"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+<!--    <script class="u-script" type="text/javascript" src="static/style/jquery.js" defer=""></script>-->
     <script class="u-script" type="text/javascript" src="static/style/nicepage.js" defer=""></script>
     <meta name="generator" content="Nicepage 6.5.3, nicepage.com">
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
@@ -56,5 +66,9 @@
             </div>
         </header>
         {% block body %}{% endblock %}
+        <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
+        <script src="/static/js/app.js"></script>
+        <script src="/static/js/viewer.js"></script>
+
     </body>
 </html>
