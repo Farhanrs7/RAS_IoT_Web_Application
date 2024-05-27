@@ -1,18 +1,18 @@
 from flask import Blueprint, render_template, redirect, url_for, Response, request
-import numpy as np
-import subprocess
-import time
+# import numpy as np
+# import subprocess
+# import time
 # import ffmpeg
-import sys
-import cv2
-import threading
+# import sys
+# import cv2
+# import threading
 
 views = Blueprint("views", __name__)
 
-frame = None
-stopCaptureThread = False
-captureThread = None
-startYield = False
+# frame = None
+# stopCaptureThread = False
+# captureThread = None
+# startYield = False
 
 
 @views.route('/', methods=['POST', 'GET'])
