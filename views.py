@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, Response, reque
 import numpy as np
 import subprocess
 import time
-import ffmpeg
+# import ffmpeg
 import sys
 import cv2
 import threading
