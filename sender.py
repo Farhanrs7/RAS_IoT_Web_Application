@@ -11,7 +11,7 @@ import os
 
 # Set the path to your service account key file
 os.environ[
-    "GOOGLE_APPLICATION_CREDENTIALS"] = "ras-iot-streaming-firebase-adminsdk-l9qma-cc69799449.json"
+    "GOOGLE_APPLICATION_CREDENTIALS"] = "ras-iot-streaming-firebase-adminsdk-l9qma-8581f38285.json"
 
 db = firestore.Client()
 
@@ -69,9 +69,9 @@ async def handleOffer(offer):
         print("connection established")
 
 
-async def available_tasks():
+async def sender():
     while True:
-        await asyncio.wait(tasks)
+        await asyncio.sleep(1)
 
 
 if __name__ == "__main__":
@@ -80,7 +80,5 @@ if __name__ == "__main__":
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    task1 = loop.create_task(handleOffer(None))
-    tasks = [task1]
-    loop.run_until_complete(available_tasks())
+    loop.run_until_complete(sender())
     loop.run_forever()

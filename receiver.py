@@ -5,7 +5,7 @@ from aiortc import RTCPeerConnection, RTCSessionDescription, RTCIceServer, RTCCo
 from google.cloud import firestore
 
 os.environ[
-    "GOOGLE_APPLICATION_CREDENTIALS"] = "ras-iot-streaming-firebase-adminsdk-l9qma-cc69799449.json"
+    "GOOGLE_APPLICATION_CREDENTIALS"] = "ras-iot-streaming-firebase-adminsdk-l9qma-8581f38285.json"
 
 db = firestore.Client()
 
@@ -39,7 +39,7 @@ def on_snapshot(doc_snapshot, changes, read_time):
                     print("Answer Received")
                     answerDict = doc.to_dict()
                     answer = RTCSessionDescription(sdp=answerDict['sdp'], type=answerDict['type'])
-                    loop.create_task(handleAnswer(answer))
+                    asyncio.create_task(handleAnswer(answer))
     callback_done.set()
 
 
@@ -66,6 +66,7 @@ class VideoFrameReceiver(MediaStreamTrack):
 async def displayFrames(stream):
     while True:
         print("helelo")
+        await asyncio.sleep(1)
         # frame = await stream.recv()
         # image = frame.to_ndarray(format='bgr24')
         # print(frame)
@@ -99,10 +100,13 @@ async def receiver():
     offerDoc.set(offer)
     print("Offer Sent")
 
+    while True:
+        await asyncio.sleep(1)
+
 
 if __name__ == "__main__":
     pc = RTCPeerConnection(RTCConfiguration(iceServers=ice_servers))
-    loop = asyncio.get_running_loop()
-    await loop.create_task(receiver())
-    while True:
-        await asyncio.sleep(1)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(receiver())
+    loop.run_forever()
