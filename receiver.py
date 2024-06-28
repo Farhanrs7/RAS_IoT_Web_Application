@@ -1,7 +1,7 @@
 import asyncio
 import os
 import threading
-import cv2
+# import cv2
 from aiortc import RTCPeerConnection, RTCSessionDescription, RTCIceServer, RTCConfiguration, MediaStreamTrack
 from google.cloud import firestore
 
