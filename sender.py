@@ -11,7 +11,7 @@ import os
 
 # Set the path to your service account key file
 os.environ[
-    "GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/farha/Downloads/ras-iot-streaming-firebase-adminsdk-l9qma-cc69799449.json"
+    "GOOGLE_APPLICATION_CREDENTIALS"] = "ras-iot-streaming-firebase-adminsdk-l9qma-cc69799449.json"
 
 db = firestore.Client()
 
