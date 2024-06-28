@@ -1,7 +1,6 @@
 import asyncio
 import os
 import threading
-# import cv2
 from aiortc import RTCPeerConnection, RTCSessionDescription, RTCIceServer, RTCConfiguration, MediaStreamTrack
 from google.cloud import firestore
 
@@ -66,9 +65,10 @@ class VideoFrameReceiver(MediaStreamTrack):
 
 async def displayFrames(stream):
     while True:
-        frame = await stream.recv()
-        image = frame.to_ndarray(format='bgr24')
-        print(frame)
+        print("helelo")
+        # frame = await stream.recv()
+        # image = frame.to_ndarray(format='bgr24')
+        # print(frame)
         # cv2_imshow(image)
         # cv2.waitKey(1)
 
@@ -89,7 +89,7 @@ async def receiver():
         if track.kind == "video":
             print(track.kind)
             video_stream.track = track
-            asyncio.create_task(displayFrames(video_stream.track))
+            # asyncio.create_task(displayFrames(video_stream.track))
 
     # Create offer
     offer = await pc.createOffer()
@@ -100,18 +100,9 @@ async def receiver():
     print("Offer Sent")
 
 
-async def available_tasks():
-    while True:
-        await asyncio.wait(tasks)
-
-
 if __name__ == "__main__":
     pc = RTCPeerConnection(RTCConfiguration(iceServers=ice_servers))
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    task1 = loop.create_task(receiver())
-    tasks = [task1]
-    # loop.run_until_complete(receiver())
-    loop.run_until_complete(available_tasks())
-
-    loop.run_forever()
+    loop = asyncio.get_running_loop()
+    await loop.create_task(receiver())
+    while True:
+        await asyncio.sleep(1)
