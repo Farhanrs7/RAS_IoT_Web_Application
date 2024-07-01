@@ -1,9 +1,13 @@
 import asyncio
 import os
 import threading
+
+import cv2
 from aiortc import RTCPeerConnection, RTCSessionDescription, RTCIceServer, RTCConfiguration, MediaStreamTrack
 from google.cloud import firestore
-
+import logging
+logger = logging.getLogger("pc")
+logging.basicConfig(level=logging.INFO)
 os.environ[
     "GOOGLE_APPLICATION_CREDENTIALS"] = "ras-iot-streaming-firebase-adminsdk-l9qma-8581f38285.json"
 
@@ -25,7 +29,9 @@ ice_servers = [RTCIceServer(x["urls"]) for x in ICE_SERVERS]
 
 offerDoc = db.collection("calls").document("offers")
 answerDoc = db.collection("calls").document("answers")
-answerDoc.delete()
+# answerDoc.delete()
+# offerDoc.delete()
+
 # Create an Event for notifying main thread.
 callback_done = threading.Event()
 
@@ -39,7 +45,7 @@ def on_snapshot(doc_snapshot, changes, read_time):
                     print("Answer Received")
                     answerDict = doc.to_dict()
                     answer = RTCSessionDescription(sdp=answerDict['sdp'], type=answerDict['type'])
-                    asyncio.create_task(handleAnswer(answer))
+                    loop.create_task(handleAnswer(answer))
     callback_done.set()
 
 
@@ -64,14 +70,17 @@ class VideoFrameReceiver(MediaStreamTrack):
 
 
 async def displayFrames(stream):
-    while True:
-        print("helelo")
-        await asyncio.sleep(1)
-        # frame = await stream.recv()
-        # image = frame.to_ndarray(format='bgr24')
-        # print(frame)
-        # cv2_imshow(image)
-        # cv2.waitKey(1)
+    try :
+        while True:
+            frame = await stream.recv()
+            cv2.imshow('stream', frame)
+            k = cv2.waitKey(1) & 0xFF
+            if k == 27: #exit on escape
+                cv2.destroyAllWindows()
+                await pc.close()
+    except:
+        print("Stopping display frames")
+
 
 
 async def receiver():
@@ -90,7 +99,7 @@ async def receiver():
         if track.kind == "video":
             print(track.kind)
             video_stream.track = track
-            # asyncio.create_task(displayFrames(video_stream.track))
+            loop.create_task(displayFrames(video_stream))
 
     # Create offer
     offer = await pc.createOffer()
@@ -104,9 +113,9 @@ async def receiver():
         await asyncio.sleep(1)
 
 
-if __name__ == "__main__":
-    pc = RTCPeerConnection(RTCConfiguration(iceServers=ice_servers))
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(receiver())
-    loop.run_forever()
+
+pc = RTCPeerConnection(RTCConfiguration(iceServers=ice_servers))
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
+loop.run_until_complete(receiver())
+loop.run_forever()
