@@ -1,31 +1,70 @@
 import asyncio
+import base64
+import json
 import os
 import threading
+import time
 
 import cv2
 from aiortc import RTCPeerConnection, RTCSessionDescription, RTCIceServer, RTCConfiguration, MediaStreamTrack
 from google.cloud import firestore
 import logging
-logger = logging.getLogger("pc")
-logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger("pc")
+# logging.basicConfig(level=logging.INFO)
 os.environ[
-    "GOOGLE_APPLICATION_CREDENTIALS"] = "ras-iot-streaming-firebase-adminsdk-l9qma-8581f38285.json"
+    "GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/farha/PycharmProjects/IoTFishFeeder/ras-iot-streaming-firebase-adminsdk-l9qma-8581f38285.json"
+
 
 db = firestore.Client()
 
-ICE_SERVERS = [
-    {"urls": "stun:stun.l.google.com:19302"},
-    {"urls": "stun:stun.l.google.com:5349"},
-    {"urls": "stun:stun1.l.google.com:3478"},
-    {"urls": "stun:stun1.l.google.com:5349"},
-    {"urls": "stun:stun2.l.google.com:19302"},
-    {"urls": "stun:stun2.l.google.com:5349"},
-    {"urls": "stun:stun3.l.google.com:3478"},
-    {"urls": "stun:stun3.l.google.com:5349"},
-    {"urls": "stun:stun4.l.google.com:19302"},
-    {"urls": "stun:stun4.l.google.com:5349"}
+# Define the ICE servers configuration
+ice_servers = [
+    {
+        "urls": "stun:stun.relay.metered.ca:80"
+    },
+    {
+        "urls": "stun:stun.l.google:19302"
+    },
+    {
+        "urls": "turn:global.relay.metered.ca:80",
+        "username": "1d20821c81d036448471a287",
+        "credential": "2yTtqTWHgkN8Jog4",
+    },
+    {
+        "urls": "turn:global.relay.metered.ca:80?transport=tcp",
+        "username": "1d20821c81d036448471a287",
+        "credential": "2yTtqTWHgkN8Jog4",
+    },
+    {
+        "urls": "turn:global.relay.metered.ca:443",
+        "username": "1d20821c81d036448471a287",
+        "credential": "2yTtqTWHgkN8Jog4",
+    },
+    {
+        "urls": "turns:global.relay.metered.ca:443?transport=tcp",
+        "username": "1d20821c81d036448471a287",
+        "credential": "2yTtqTWHgkN8Jog4",
+    },
 ]
-ice_servers = [RTCIceServer(x["urls"]) for x in ICE_SERVERS]
+# Define the ICE servers configuration
+ice_servers2 = [
+    {
+        "urls": "turn:openrelay.metered.ca:80",
+        "username": "openrelayproject",
+        "credential": "openrelayproject",
+    }
+]
+
+# Convert the dictionary to RTCIceServer objects
+rtc_ice_servers = []
+for server in ice_servers:
+    rtc_ice_server = RTCIceServer(
+        urls=server["urls"],
+        username=server.get("username"),
+        credential=server.get("credential"),
+    )
+    rtc_ice_servers.append(rtc_ice_server)
+
 
 offerDoc = db.collection("calls").document("offers")
 answerDoc = db.collection("calls").document("answers")
@@ -70,17 +109,14 @@ class VideoFrameReceiver(MediaStreamTrack):
 
 
 async def displayFrames(stream):
-    try :
+    try:
         while True:
             frame = await stream.recv()
-            cv2.imshow('stream', frame)
-            k = cv2.waitKey(1) & 0xFF
-            if k == 27: #exit on escape
-                cv2.destroyAllWindows()
-                await pc.close()
+            _, buffer = cv2.imencode('.jpg', frame)
+            frame_base64 = base64.b64encode(bytes(buffer)).decode('utf-8')
+            print(frame_base64)
     except:
         print("Stopping display frames")
-
 
 
 async def receiver():
@@ -108,13 +144,13 @@ async def receiver():
     offer = {'sdp': pc.localDescription.sdp, 'type': pc.localDescription.type}
     offerDoc.set(offer)
     print("Offer Sent")
-
     while True:
         await asyncio.sleep(1)
 
 
+# pc = RTCPeerConnection(configuration=RTCConfiguration(rtc_ice_servers))
+pc = RTCPeerConnection(configuration=RTCConfiguration([RTCIceServer(urls='stun:stun.l.google:19302')]))
 
-pc = RTCPeerConnection(RTCConfiguration(iceServers=ice_servers))
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 loop.run_until_complete(receiver())
