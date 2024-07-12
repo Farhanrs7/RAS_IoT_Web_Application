@@ -4,9 +4,14 @@
 <body class="u-body u-xl-mode" data-style="blank" data-posts="" data-global-section-properties="{&quot;colorings&quot;:{&quot;light&quot;:[&quot;clean&quot;],&quot;colored&quot;:[&quot;clean&quot;],&quot;dark&quot;:[&quot;dark&quot;]}}" data-source="" data-lang="en" data-page-sections-style="[{&quot;name&quot;:&quot;blank&quot;}]" data-page-coloring-types="{&quot;light&quot;:[&quot;clean&quot;],&quot;colored&quot;:[&quot;clean&quot;],&quot;dark&quot;:[&quot;dark&quot;]}" data-page-category="&quot;Basic&quot;">
   <section class="u-clearfix u-block-d3f5-1" custom-posts-hash="[]" data-style="blank" data-section-properties="{&quot;margin&quot;:&quot;none&quot;,&quot;stretch&quot;:true}" id="sec-b065" data-id="d3f5">
     <div class="u-clearfix u-sheet u-block-d3f5-2" style="display: grid;justify-content: center;grid-template-columns: 100%;padding: 5%;">
-      <div class="u-container-style u-group u-palette-5-base u-block-d3f5-3" style="width: 75%;height: fit-content; justify-self:center">
-        <div id="viewer" class="u-container-layout u-block-d3f5-4">
+      <div class="d-flex justify-content-between p-2" style="width: 100%;height: fit-content; justify-self:center">
+        <div id="viewer" class="w-100">
+          <h4>Live</h4>
           <video style="width:100%"  onerror="this.style.display='none'" class="remote-view" autoPlay playsInline controls title="From Master"></video>
+        </div>
+        <div id="server" class="w-100">
+          <h4>AI Processed</h4>
+          <video style="width:100%"  onerror="this.style.display='none'" class="server-view" autoPlay playsInline controls title="From Server"></video>
         </div>
       </div>
       <form>

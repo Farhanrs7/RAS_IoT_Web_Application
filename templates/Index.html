@@ -16,6 +16,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+
+
+<!--    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>-->
+<!--    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>-->
+
+
 
 <!--    <script class="u-script" type="text/javascript" src="static/style/jquery.js" defer=""></script>-->
     <script class="u-script" type="text/javascript" src="static/style/nicepage.js" defer=""></script>
@@ -67,8 +74,12 @@
         </header>
         {% block body %}{% endblock %}
         <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>
-        <script src="/static/js/app.js"></script>
-        <script src="/static/js/viewer.js"></script>
+<!--        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>-->
+<!--        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>-->
+
+
+        <script type="module" src="/static/js/app.js"></script>
+        <script type="module" src="/static/js/viewer.js"></script>
 
     </body>
 </html>

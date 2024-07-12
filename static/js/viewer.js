@@ -1,13 +1,54 @@
 /**
  * This file demonstrates the process of starting WebRTC streaming using a KVS Signaling Channel.
  */
-const viewer = {};
+// Import the functions you need from the SDKs you need
+// Import the functions you need from the SDKs you need
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'
+import { doc,getDoc, getFirestore, collection, onSnapshot,setDoc, query, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js'
 
-async function startViewer(remoteView, formValues) {
+// Your web app's Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyA6EGqI3xMLvBF0aIfoAgRRgbq6Us7uC24",
+    authDomain: "ras-iot-streaming.firebaseapp.com",
+    projectId: "ras-iot-streaming",
+    storageBucket: "ras-iot-streaming.appspot.com",
+    messagingSenderId: "148161552537",
+    appId: "1:148161552537:web:36f2710d714ab43749d808"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Initialize Firestore
+const db = getFirestore(app);
+
+const viewer = {};
+const receiver = {};
+let streamView;
+
+const offerDoc = doc(db,"calls","offers");
+deleteDoc(offerDoc);
+const answerDoc = doc(db,"calls", "answers");
+deleteDoc(answerDoc);
+
+// Listen for real-time updates in the 'yourCollection' collection
+const q = query(collection(db, "calls"));
+const unsubscribe = onSnapshot(q, (snapshot) => {
+  snapshot.docChanges().forEach((change) => {
+    if (change.type === "added" && change.doc.id === "answers") {
+        console.log("[ANSWER] : Answer received: ", change.doc.data());
+        let answer =  change.doc.data();
+        receiver.peerConnection.setRemoteDescription(answer);
+    }
+  });
+});
+
+export async function startViewer(remoteView, formValues) {
     try {
         console.log('[VIEWER] Channel name is:', formValues.channelName);
         console.log(KVSWebRTC.Role);
-        viewerButtonPressed = new Date();
+        let viewerButtonPressed = new Date();
+        streamView = remoteView;
 
         viewer.remoteView = remoteView;
         console.log(formValues.region);
@@ -32,7 +73,7 @@ async function startViewer(remoteView, formValues) {
             .getSignalingChannelEndpoint({
                 ChannelARN: channelARN,
                 SingleMasterChannelEndpointConfiguration: {
-                    Protocols: ['WSS', 'HTTPS'],
+                    Protocols: ['WSS'],
                     Role: KVSWebRTC.Role.VIEWER,
                 },
             })
@@ -43,39 +84,6 @@ async function startViewer(remoteView, formValues) {
             return endpoints;
         }, {});
         console.log('[VIEWER] Endpoints:', endpointsByProtocol);
-
-        const kinesisVideoSignalingChannelsClient = new AWS.KinesisVideoSignalingChannels({
-            region: formValues.region,
-            accessKeyId: formValues.accessKeyId,
-            secretAccessKey: formValues.secretAccessKey,
-            endpoint: endpointsByProtocol.HTTPS,
-            correctClockSkew: true,
-        });
-
-        // Get ICE server configuration
-        const getIceServerConfigResponse = await kinesisVideoSignalingChannelsClient
-            .getIceServerConfig({
-                ChannelARN: channelARN,
-            })
-            .promise();
-
-        const iceServers = [];
-        // Don't add stun if user selects TURN only or NAT traversal disabled
-        if (!formValues.natTraversalDisabled && !formValues.forceTURN) {
-            iceServers.push({ urls: `stun:stun.kinesisvideo.${formValues.region}.amazonaws.com:443` });
-        }
-
-        // Don't add turn if user selects STUN only or NAT traversal disabled
-        if (!formValues.natTraversalDisabled && !formValues.forceSTUN) {
-            getIceServerConfigResponse.IceServerList.forEach(iceServer =>
-                iceServers.push({
-                    urls: iceServer.Uris,
-                    username: iceServer.Username,
-                    credential: iceServer.Password,
-                }),
-            );
-        }
-        console.log('[VIEWER] ICE servers:', iceServers);
 
         // Create Signaling Client
         viewer.signalingClient = new KVSWebRTC.SignalingClient({
@@ -92,22 +100,18 @@ async function startViewer(remoteView, formValues) {
             systemClockOffset: kinesisVideoClient.config.systemClockOffset,
         });
 
-        const resolution = formValues.widescreen
-            ? {
-                  width: { ideal: 1280 },
-                  height: { ideal: 720 },
-              }
-            : { width: { ideal: 640 }, height: { ideal: 480 } };
-        const constraints = {
-            video: false,
-            audio: false,
-        };
-        const configuration = {
-            iceServers,
-            iceTransportPolicy: formValues.forceTURN ? 'relay' : 'all',
-        };
-        viewer.peerConnection = new RTCPeerConnection(configuration);
+//        const resolution = formValues.widescreen
+//            ? {
+//                  width: { ideal: 1280 },
+//                  height: { ideal: 720 },
+//              }
+//            : { width: { ideal: 640 }, height: { ideal: 480 } };
+//        const constraints = {
+//            video: false,
+//            audio: false,
+//        };
 
+        viewer.peerConnection = new RTCPeerConnection();
 
 
         viewer.signalingClient.on('open', async () => {
@@ -181,12 +185,16 @@ async function startViewer(remoteView, formValues) {
             if (remoteView.srcObject) {
                 return;
             }
+            $('#server').removeClass('d-none');
             $('#viewer').removeClass('d-none');
             viewer.remoteStream = event.streams[0];
             remoteView.srcObject = viewer.remoteStream;
+            receiver.stream = event.streams[0];
+
+
+            streamToServer();
 
         });
-
         console.log('[VIEWER] Starting viewer connection');
         viewer.signalingClient.open();
     }
@@ -195,14 +203,84 @@ async function startViewer(remoteView, formValues) {
     }
 }
 
-function stopViewer() {
+
+export async function streamToServer(){
+    try{
+        const constraints = {
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            frameRate: { ideal: 30 },
+          },
+          audio: false
+        };
+        console.log("[Initializing]");
+        // STUN server configuration
+        var config = {
+            iceServers : [{ urls: ['stun:stun.l.google.com:19302'] }]
+        };
+
+        receiver.peerConnection = new RTCPeerConnection(config);
+        let pc = receiver.peerConnection;
+         // register some listeners to help debugging
+        pc.addEventListener('icegatheringstatechange', () => {
+            console.log("[Ice Gathering State]",pc.iceGatheringState);
+        }, false);
+        pc.addEventListener('iceconnectionstatechange', () => {
+            console.log("[Ice Connection State]",pc.iceGatheringState);
+        }, false);
+
+        // connect audio / video
+        pc.addEventListener('track', (evt) => {
+            if (evt.track.kind == 'video')
+                console.log("[VIDEO RECEIVED]");
+                $('#server').removeClass('d-none');
+                receiver.remoteView = $('#server .server-view')[0]
+                receiver.remoteStream = evt.streams[0];
+                receiver.remoteView.srcObject =receiver.remoteStream;
+        });
+        // Add tracks to the peer connection
+//        let localStream = await navigator.mediaDevices.getUserMedia({ video: true });
+//        let localStream = $('#viewer .remote-view')[0].srcObject? $('#viewer .remote-view')[0].srcObject : null;
+//       let localStream = $('#webcams .webcam-view')[0].srcObject? $('#webcams .webcam-view')[0].srcObject : null;
+
+        // Add tracks to the peer connection
+//        receiver.peerConnection.addTrack(receiver.track)
+        receiver.stream.getTracks().forEach(track =>{
+            var sender = receiver.peerConnection.addTrack(track, receiver.stream);
+            var params = sender.getParameters();
+//            params.encodings[0].maxFramerate = 5.0;
+//            params.encodings[0].priority = "high";
+
+
+            sender.setParameters(params);
+        });
+
+        var offered = await receiver.peerConnection.createOffer();
+        var offerDict = { sdp:offered.sdp, type:offered.type }
+        console.log("[OFFER] : Offer created",offered);
+        receiver.peerConnection.setLocalDescription(offered);
+        console.log("[OFFER] : Offer sent");
+        setDoc(offerDoc, offerDict);
+    }
+    catch (e) {
+        console.error('[SERVER] Encountered error starting:', e);
+    }
+}
+
+export function stopViewer() {
     try {
         console.log('[VIEWER] Stopping viewer connection');
+
+        deleteDoc(offerDoc);
+        deleteDoc(answerDoc);
+
 
         if (viewer.signalingClient) {
             viewer.signalingClient.close();
             viewer.signalingClient = null;
         }
+
 
         if (viewer.peerConnection) {
             viewer.peerConnection.close();
@@ -216,6 +294,21 @@ function stopViewer() {
 
         if (viewer.remoteView) {
             viewer.remoteView.srcObject = null;
+        }
+
+        if (receiver.peerConnection) {
+            receiver.peerConnection.close();
+            receiver.peerConnection = null;
+            receiver.peerConnection = null;
+        }
+
+        if (receiver.remoteStream) {
+            receiver.remoteStream.getTracks().forEach(track => track.stop());
+            receiver.remoteStream = null;
+        }
+
+        if (receiver.remoteView) {
+            receiver.remoteView.srcObject = null;
         }
 
     } catch (e) {

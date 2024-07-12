@@ -1,6 +1,21 @@
+import { startViewer,stopViewer, streamToServer } from "/static/js/viewer.js"
+
 let ROLE = null; // Possible values: 'master', 'viewer', null
 $('#viewer').addClass('d-none');
+$('#server').addClass('d-none');
 
+const v = $('#viewer .remote-view')[0];
+v.addEventListener( "loadedmetadata", function (e) {
+    var width = this.videoWidth,
+        height = this.videoHeight;
+    console.log("[VIDEO DIMENSIONS] ", width," ", height);
+}, false );
+const s = $('#server .server-view')[0];
+s.addEventListener( "loadedmetadata", function (e) {
+    var width = this.videoWidth,
+        height = this.videoHeight;
+    console.log("[VIDEO DIMENSIONS] ", width," ", height);
+}, false );
 function getRandomClientId() {
     return Math.random()
         .toString(36)
@@ -28,6 +43,8 @@ $('#stream-button').click(async () => {
     const remoteView = $('#viewer .remote-view')[0];
     const formValues = getFormValues();
     startViewer( remoteView, formValues);
+//    streamToServer();
+
 });
 
 function onStop() {
@@ -37,6 +54,8 @@ function onStop() {
     if (ROLE === 'viewer') {
         stopViewer();
         $('#viewer').addClass('d-none');
+        $('#server').addClass('d-none');
+
     }
     ROLE = null;
 }

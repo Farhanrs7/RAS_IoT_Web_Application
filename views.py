@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, Response, request
+
 # import numpy as np
 # import subprocess
 # import time
@@ -8,6 +9,7 @@ from flask import Blueprint, render_template, redirect, url_for, Response, reque
 # import threading
 
 views = Blueprint("views", __name__)
+
 
 # frame = None
 # stopCaptureThread = False
@@ -23,7 +25,6 @@ def mainPage():
 @views.route('/Stream', methods=['POST', 'GET'])
 def streamPage():
     return render_template('Stream.html')
-
 
 # @views.route('/play')
 # def play():
