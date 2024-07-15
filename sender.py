@@ -7,7 +7,7 @@ import os
 
 import logging
 
-logger = logging.getLogger("pc")
+logger = logging.getLogger("__main__")
 logging.basicConfig(level=logging.INFO)
 # Set the path to your service account key file
 os.environ[
@@ -80,6 +80,7 @@ doc_offer_watch = offerDoc.on_snapshot(on_snapshot)
 async def handleOffer(offer):
     # pc = RTCPeerConnection(RTCConfiguration(rtc_ice_servers))
     pc = RTCPeerConnection(configuration=RTCConfiguration([RTCIceServer(urls='stun:stun.l.google:19302')]))
+    pc.addTransceiver("video", direction="sendonly")
 
     @pc.on("connectionstatechange")
     async def on_connectionstatechange():

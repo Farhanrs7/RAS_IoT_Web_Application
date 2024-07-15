@@ -192,7 +192,7 @@ export async function startViewer(remoteView, formValues) {
             receiver.stream = event.streams[0];
 
 
-            streamToServer();
+//            streamToServer();
 
         });
         console.log('[VIEWER] Starting viewer connection');

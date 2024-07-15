@@ -1,12 +1,16 @@
-from flask import Blueprint, render_template, redirect, url_for, Response, request
+import time
 
+import cv2
+from flask import Blueprint, render_template, redirect, url_for, Response, request
+from kvsReceiver import Receiver
 # import numpy as np
 # import subprocess
 # import time
 # import ffmpeg
 # import sys
 # import cv2
-# import threading
+import threading
+from frameAi import AiModel
 
 views = Blueprint("views", __name__)
 
@@ -15,7 +19,9 @@ views = Blueprint("views", __name__)
 # stopCaptureThread = False
 # captureThread = None
 # startYield = False
-
+videoStatus = True
+receiver = Receiver(1280, 720)
+model = AiModel()
 
 @views.route('/', methods=['POST', 'GET'])
 def mainPage():
@@ -25,6 +31,38 @@ def mainPage():
 @views.route('/Stream', methods=['POST', 'GET'])
 def streamPage():
     return render_template('Stream.html')
+
+
+@views.route('/video_feed')
+def video_feed():
+    print(videoStatus)
+    if videoStatus:
+        return Response(gen(),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
+    else:
+        return Response()
+
+def gen():
+    while videoStatus:
+        # print("waiting for queue")
+        # with receiver.frame_queue.mutex:
+        #     receiver.frame_queue.queue.clear()
+        frame = receiver.frame_queue.get()
+        # time.sleep(1)
+        # cv2.imshow('stream', frame)
+        # if cv2.waitKey(1) & 0xFF == 27:
+        #     cv2.destroyAllWindows()
+        #     break
+        # frame = model.aiTask(frame)
+        _, buffer = cv2.imencode('.jpg', frame)
+
+        # global frameImg
+        # frameImg = Image.open(io.BytesIO(message))
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + bytes(buffer) + b'\r\n')
+
+
 
 # @views.route('/play')
 # def play():

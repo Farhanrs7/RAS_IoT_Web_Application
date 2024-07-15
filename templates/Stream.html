@@ -11,7 +11,8 @@
         </div>
         <div id="server" class="w-100">
           <h4>AI Processed</h4>
-          <video style="width:100%"  onerror="this.style.display='none'" class="server-view" autoPlay playsInline controls title="From Server"></video>
+          <video style="width:100%; display:none"  onerror="this.style.display='none'" class="server-view" autoPlay playsInline controls title="From Server"></video>
+          <img style="width:100%" onerror="this.style.display='none'" src="{{ url_for('views.video_feed') }}"/>
         </div>
       </div>
       <form>

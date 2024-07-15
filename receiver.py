@@ -9,10 +9,10 @@ import cv2
 from aiortc import RTCPeerConnection, RTCSessionDescription, RTCIceServer, RTCConfiguration, MediaStreamTrack
 from google.cloud import firestore
 import logging
-# logger = logging.getLogger("pc")
-# logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("pc")
+logging.basicConfig(level=logging.INFO)
 os.environ[
-    "GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/farha/PycharmProjects/IoTFishFeeder/ras-iot-streaming-firebase-adminsdk-l9qma-8581f38285.json"
+    "GOOGLE_APPLICATION_CREDENTIALS"] = "ras-iot-streaming-firebase-adminsdk-l9qma-8581f38285.json"
 
 
 db = firestore.Client()
