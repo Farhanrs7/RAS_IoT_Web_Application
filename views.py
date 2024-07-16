@@ -14,14 +14,13 @@ from frameAi import AiModel
 
 views = Blueprint("views", __name__)
 
-
 # frame = None
 # stopCaptureThread = False
 # captureThread = None
 # startYield = False
-videoStatus = True
 receiver = Receiver(1280, 720)
 model = AiModel()
+# cam = cv2.VideoCapture(0)
 
 @views.route('/', methods=['POST', 'GET'])
 def mainPage():
@@ -35,34 +34,34 @@ def streamPage():
 
 @views.route('/video_feed')
 def video_feed():
-    print(videoStatus)
-    if videoStatus:
-        return Response(gen(),
+    response = Response(gen(),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
-    else:
-        return Response()
+    return response
+
 
 def gen():
-    while videoStatus:
+
+    while True:
         # print("waiting for queue")
-        # with receiver.frame_queue.mutex:
-        #     receiver.frame_queue.queue.clear()
+        with receiver.frame_queue.mutex:
+            receiver.frame_queue.queue.clear()
         frame = receiver.frame_queue.get()
-        # time.sleep(1)
+
+        # success, frame = cam.read()
+        # time.sleep(2)
         # cv2.imshow('stream', frame)
         # if cv2.waitKey(1) & 0xFF == 27:
         #     cv2.destroyAllWindows()
-        #     break
-        # frame = model.aiTask(frame)
-        _, buffer = cv2.imencode('.jpg', frame)
+            # break
+        frame = model.aiTask(frame)
 
-        # global frameImg
-        # frameImg = Image.open(io.BytesIO(message))
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
 
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + bytes(buffer) + b'\r\n')
-
-
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 # @views.route('/play')
 # def play():
