@@ -64,8 +64,18 @@ export async function startViewer(remoteView, formValues) {
         });
         console.log(kinesisVideoClient);
 
-        const channelARN = "arn:aws:kinesisvideo:ap-southeast-1:822124228671:channel/FishTankWebrtc/1714814825548";
+        const describeSignalingChannelResponse = await kinesisVideoClient
+            .describeSignalingChannel({
+                ChannelName: formValues.channelName,
+            })
+            .promise();
+
+        const channelARN = describeSignalingChannelResponse.ChannelInfo.ChannelARN;
         console.log('[VIEWER] Channel ARN:', channelARN);
+
+
+//        const channelARN = "arn:aws:kinesisvideo:ap-southeast-1:822124228671:channel/FishTankWebrtc/1714814825548";
+//        console.log('[VIEWER] Channel ARN:', channelARN);
 
         // Get signaling channel endpoints
 
