@@ -13,6 +13,7 @@ from kvsReceiver import Receiver
 # import cv2
 import threading
 from frameAi import AiModel
+
 # from realtime_detection import RealtimeDetection
 views = Blueprint("views", __name__)
 
@@ -21,6 +22,8 @@ views = Blueprint("views", __name__)
 # captureThread = None
 # startYield = False
 receiver = None
+
+
 # model = AiModel()
 # model = RealtimeDetection()
 
@@ -38,12 +41,15 @@ def mainPage():
 def streamPage():
     return render_template('Stream.html')
 
+
 @views.route('/startStreaming')
 def startStreaming():
     print("stream button clicked")
     global receiver
-    receiver = Receiver(1280,720)
-    return {'success':True}
+    if receiver is None:
+        receiver = Receiver(1280, 720)
+    return {'success': True}
+
 
 @views.route('/stopStreaming')
 def stopStreaming():
@@ -53,11 +59,13 @@ def stopStreaming():
         print("Stopping receiver")
         receiver.stop()
         receiver = None
-    return {'success':True}
+    return {'success': True}
+
 
 @views.route('/feed')
 def feed():
     return
+
 
 @views.route('/video_feed')
 def video_feed():
@@ -79,7 +87,7 @@ def gen():
             # cv2.imshow('stream', frame)
             # if cv2.waitKey(1) & 0xFF == 27:
             #     cv2.destroyAllWindows()
-                # break
+            # break
             # frame = model.process(frame)
             # frame = model.aiTask(frame)
 
@@ -88,8 +96,7 @@ def gen():
 
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            yield (b'--frame\r\n')
 
 # @views.route('/play')
 # def play():
