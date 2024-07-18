@@ -38,12 +38,19 @@ $('#stop-stream-button').click(onStop);
 
 
 $('#stream-button').click(async () => {
-    const a = fetch("/startStreaming");
+    const formValues = getFormValues();
+    const a = fetch('/startStreaming', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ param: formValues.channelName }),
+                });
     $('#server').removeClass('d-none');
     const form = $('#form');
     ROLE = 'viewer';
     const remoteView = $('#viewer .remote-view')[0];
-    const formValues = getFormValues();
+
     startViewer( remoteView, formValues);
 
 //    streamToServer();

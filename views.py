@@ -42,12 +42,13 @@ def streamPage():
     return render_template('Stream.html')
 
 
-@views.route('/startStreaming')
+@views.route('/startStreaming', methods=['POST','GET'])
 def startStreaming():
+    channel_name = request.json.get('param')
     print("stream button clicked")
     global receiver
     if receiver is None:
-        receiver = Receiver(1280, 720)
+        receiver = Receiver(1280, 720,channel_name)
     return {'success': True}
 
 

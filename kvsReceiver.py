@@ -20,9 +20,9 @@ ffmpegProcess = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE, stdout=subpr
 
 
 class Receiver():
-    def __init__(self, frame_width, frame_height):
+    def __init__(self, frame_width, frame_height, channelName):
         self.p = subprocess.Popen(
-            ["C:/Users/farha/amazonkvswebrtc2/build/samples/kvsWebrtcClientViewerGstSample", "test", "video-only"],
+            ["C:/Users/farha/amazonkvswebrtc2/build/samples/kvsWebrtcClientViewerGstSample", channelName, "video-only"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         self.FRAME_WIDTH = frame_width
         self.FRAME_HEIGHT = frame_height
