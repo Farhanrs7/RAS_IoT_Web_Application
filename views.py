@@ -2,6 +2,8 @@ import time
 
 import cv2
 from flask import Blueprint, render_template, redirect, url_for, Response, request
+
+import kvsReceiver
 from kvsReceiver import Receiver
 # import numpy as np
 # import subprocess
@@ -11,15 +13,20 @@ from kvsReceiver import Receiver
 # import cv2
 import threading
 from frameAi import AiModel
-
+# from realtime_detection import RealtimeDetection
 views = Blueprint("views", __name__)
 
 # frame = None
 # stopCaptureThread = False
 # captureThread = None
 # startYield = False
-receiver = Receiver(1280, 720)
-model = AiModel()
+receiver = None
+# model = AiModel()
+# model = RealtimeDetection()
+
+# receiver = Receiver(1280, 720)
+
+
 # cam = cv2.VideoCapture(0)
 
 @views.route('/', methods=['POST', 'GET'])
@@ -31,6 +38,26 @@ def mainPage():
 def streamPage():
     return render_template('Stream.html')
 
+@views.route('/startStreaming')
+def startStreaming():
+    print("stream button clicked")
+    global receiver
+    receiver = Receiver(1280,720)
+    return {'success':True}
+
+@views.route('/stopStreaming')
+def stopStreaming():
+    print("stop button clicked")
+    global receiver
+    if receiver is not None:
+        print("Stopping receiver")
+        receiver.stop()
+        receiver = None
+    return {'success':True}
+
+@views.route('/feed')
+def feed():
+    return
 
 @views.route('/video_feed')
 def video_feed():
@@ -40,28 +67,29 @@ def video_feed():
 
 
 def gen():
-
     while True:
-        # print("waiting for queue")
-        with receiver.frame_queue.mutex:
-            receiver.frame_queue.queue.clear()
-        frame = receiver.frame_queue.get()
+        if receiver is not None:
+            # print("waiting for queue")
+            with receiver.frame_queue.mutex:
+                receiver.frame_queue.queue.clear()
+            frame = receiver.frame_queue.get()
 
-        # success, frame = cam.read()
-        # time.sleep(2)
-        # cv2.imshow('stream', frame)
-        # if cv2.waitKey(1) & 0xFF == 27:
-        #     cv2.destroyAllWindows()
-            # break
-        frame = model.aiTask(frame)
+            # success, frame = cam.read()
+            # time.sleep(2)
+            # cv2.imshow('stream', frame)
+            # if cv2.waitKey(1) & 0xFF == 27:
+            #     cv2.destroyAllWindows()
+                # break
+            # frame = model.process(frame)
+            # frame = model.aiTask(frame)
 
-        ret, buffer = cv2.imencode('.jpg', frame)
-        frame = buffer.tobytes()
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
 
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 # @views.route('/play')
 # def play():

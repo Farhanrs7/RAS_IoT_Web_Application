@@ -190,11 +190,9 @@ export async function startViewer(remoteView, formValues) {
             viewer.remoteStream = event.streams[0];
             remoteView.srcObject = viewer.remoteStream;
             receiver.stream = event.streams[0];
-
-
 //            streamToServer();
-
         });
+
         console.log('[VIEWER] Starting viewer connection');
         viewer.signalingClient.open();
     }
@@ -203,6 +201,21 @@ export async function startViewer(remoteView, formValues) {
     }
 }
 
+// Get stats periodically (example every 5 seconds)
+//setInterval(() => {
+//    if (viewer.peerConnection){
+//        viewer.peerConnection.getStats()
+//            .then(stats => {
+//                stats.forEach(report => {
+//                    console.log(`Report: ${report.type}`);
+//                    console.log(report);
+//                });
+//            })
+//            .catch(err => {
+//                console.error(err);
+//            });
+//    }
+//}, 2000);
 
 export async function streamToServer(){
     try{
@@ -234,7 +247,6 @@ export async function streamToServer(){
         pc.addEventListener('track', (evt) => {
             if (evt.track.kind == 'video')
                 console.log("[VIDEO RECEIVED]");
-                $('#server').removeClass('d-none');
                 receiver.remoteView = $('#server .server-view')[0]
                 receiver.remoteStream = evt.streams[0];
                 receiver.remoteView.srcObject =receiver.remoteStream;

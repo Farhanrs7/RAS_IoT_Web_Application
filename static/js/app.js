@@ -38,16 +38,21 @@ $('#stop-stream-button').click(onStop);
 
 
 $('#stream-button').click(async () => {
+    const a = fetch("/startStreaming");
+    $('#server').removeClass('d-none');
     const form = $('#form');
     ROLE = 'viewer';
     const remoteView = $('#viewer .remote-view')[0];
     const formValues = getFormValues();
     startViewer( remoteView, formValues);
+
 //    streamToServer();
 
 });
 
 function onStop() {
+    const a = fetch("/stopStreaming");
+
     if (!ROLE) {
         return;
     }
