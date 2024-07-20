@@ -50,12 +50,24 @@ $('#stream-button').click(async () => {
     const form = $('#form');
     ROLE = 'viewer';
     const remoteView = $('#viewer .remote-view')[0];
-
     startViewer( remoteView, formValues);
 
-//    streamToServer();
 
 });
+
+$('#feed-button').click(async () => {
+    const a = fetch('/feed', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: $('#feed-amount').val()}),
+         }).then(response => response.json()).then(data => $('#feed-label').text("Status : " + data.message));
+
+
+});
+
+
 
 function onStop() {
     const a = fetch("/stopStreaming");

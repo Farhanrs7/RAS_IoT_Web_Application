@@ -1,7 +1,7 @@
 import time
 
 import cv2
-from flask import Blueprint, render_template, redirect, url_for, Response, request
+from flask import Blueprint, render_template, redirect, url_for, Response, request, jsonify
 
 import kvsReceiver
 from kvsReceiver import Receiver
@@ -12,10 +12,22 @@ from kvsReceiver import Receiver
 # import sys
 # import cv2
 import threading
-from frameAi import AiModel
+import os
+from google.cloud import firestore
+from datetime import datetime
+#from frameAi import AiModel
 
 # from realtime_detection import RealtimeDetection
 views = Blueprint("views", __name__)
+
+# Set the path to your service account key file
+os.environ[
+    "GOOGLE_APPLICATION_CREDENTIALS"] = "ras-iot-streaming-firebase-adminsdk-l9qma-8581f38285.json"
+
+db = firestore.Client()
+
+feedDoc = db.collection("feeding").document("signals")
+
 
 # frame = None
 # stopCaptureThread = False
@@ -63,9 +75,15 @@ def stopStreaming():
     return {'success': True}
 
 
-@views.route('/feed')
+@views.route('/feed', methods=['POST', 'GET'])
 def feed():
-    return
+    text = request.json.get('text')
+    # datetime object containing current date and time
+    now = datetime.now()
+    # dd/mm/YY H:M:S
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    feedDoc.set({"feed amount" : text, "feed time": dt_string})
+    return jsonify({"message": "Sending signal to RPI...."})
 
 
 @views.route('/video_feed')
@@ -79,8 +97,6 @@ def gen():
     while True:
         if receiver is not None:
             # print("waiting for queue")
-            with receiver.frame_queue.mutex:
-                receiver.frame_queue.queue.clear()
             frame = receiver.frame_queue.get()
 
             # success, frame = cam.read()
@@ -97,78 +113,6 @@ def gen():
 
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-            yield (b'--frame\r\n')
-
-# @views.route('/play')
-# def play():
-#     global captureThread, stopCaptureThread, startYield
-#     stopCaptureThread = False
-#     captureThread = threading.Thread(target=captureImage, args=())
-#     captureThread.daemon=True
-#     captureThread.start()
-#
-#     startYield = True
-#     return redirect(url_for('views.streamPage'))
-
-#
-# @views.route('/stop')
-# def stop():
-#     global stopCaptureThread, startYield, frame
-#     stopCaptureThread = True
-#     startYield = False
-#     frame = None
-#     print("Capture Thread successfully closed")
-#     return redirect(url_for('views.streamPage'))
-#
-#
-# @views.route('/video_feed')
-# def video_feed():
-#     if startYield:
-#         return Response(gen(),
-#                         mimetype='multipart/x-mixed-replace; boundary=frame')
-#     else:
-#         return Response()
-#
-#
-# def gen():
-#     global frame
-#     while startYield:
-#         if frame is not None and len(frame.shape) == 3:
-#             frame2 = cv2.imencode('.jpg', frame)[1]
-#             yield (b'--frame\r\n'
-#                    b'Content-Type: image/jpeg\r\n\r\n' + bytearray(frame2) + b'\r\n')
-#
-#
-# def captureImage():
-#     print("Capturing Image")
-#     probe = ffmpeg.probe('rtsp://192.168.0.5:8080/h264.sdp')
-#     cap_info = next(x for x in probe['streams'] if x['codec_type'] == 'video')
-#     width = cap_info['width']
-#     height = cap_info['height']
-#     process1 = subprocess.Popen(['ffmpeg', '-fflags', 'nobuffer', '-flags', 'low_delay',
-#                                  '-rtsp_transport', 'tcp',
-#                                  '-i', 'rtsp://192.168.0.5:8080/h264.sdp',
-#                                  '-f', 'rawvideo',
-#                                  '-pix_fmt', 'bgr24',
-#                                  '-r', '20',
-#                                  'pipe:'], stdout=subprocess.PIPE)
-#
-#     # cv2.namedWindow("ffmpeg", cv2.WINDOW_NORMAL)
-#     while True:
-#         start = time.time()
-#         frame_size = width * height * 3
-#         in_bytes = process1.stdout.read(frame_size)
-#         print(time.time() - start)
-#         if not in_bytes:
-#             break
-#         in_frame = np.frombuffer(in_bytes, np.uint8).reshape([height, width, 3])
-#         global frame
-#         frame = in_frame
-#         # cv2.imshow("ffmpeg", in_frame)
-#         if cv2.waitKey(1) == ord('q') or stopCaptureThread:
-#             # cv2.destroyAllWindows()
-#             process1.terminate()
-#             break
-#
-#         process1.stdout.flush()
-#
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            time.sleep(0.01)

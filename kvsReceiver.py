@@ -16,7 +16,6 @@ print("Initializing subprocess")
 ffmpeg_cmd = (
     ffmpeg.input("pipe:0", format='h264').video.output('pipe:1', format='rawvideo', pix_fmt='bgr24').compile()
 )
-ffmpegProcess = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
 
 class Receiver():
@@ -24,12 +23,13 @@ class Receiver():
         self.p = subprocess.Popen(
             ["C:/Users/farha/amazonkvswebrtc2/build/samples/kvsWebrtcClientViewerGstSample", channelName, "video-only"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        self.ffmpegProcess = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         self.FRAME_WIDTH = frame_width
         self.FRAME_HEIGHT = frame_height
-        self.frame_queue = queue.Queue()
+        self.frame_queue = queue.Queue(maxsize=1)
         self.stop_thread = False
-        self.t1 = threading.Thread(target=self.sendFrameToFFMpeg, args=(self.p.stdout, ffmpegProcess.stdin,))
-        self.t2 = threading.Thread(target=self.getFrameFromFFMpeg, args=(ffmpegProcess.stdout, self.frame_queue,))
+        self.t1 = threading.Thread(target=self.sendFrameToFFMpeg, args=(self.p.stdout, self.ffmpegProcess.stdin,))
+        self.t2 = threading.Thread(target=self.getFrameFromFFMpeg, args=(self.ffmpegProcess.stdout, self.frame_queue,))
         self.t1.daemon = True
         self.t2.daemon = True
         self.t1.start()
@@ -41,13 +41,13 @@ class Receiver():
         self.t2.join()
         print("both threads exited")
         self.p.terminate()
+        self.ffmpegProcess.terminate()
         print("kvs process terminated")
 
     def sendFrameToFFMpeg(self, out, ffmpegIn):
         while True:
             if self.stop_thread:
                 break
-
             line = out.readline().strip()
             if line.find("Received frame:") != -1:
                 frameBase64_ = line.split(":")[1]
@@ -67,10 +67,8 @@ class Receiver():
             if frame_bytes_ is not None:
                 # print("thread2: got frame_bytes")
                 frame_ = numpy.frombuffer(frame_bytes_, numpy.uint8).reshape([self.FRAME_HEIGHT, self.FRAME_WIDTH, 3])
-                frameq.put(frame_)
-                size = frameq.qsize()
-                if size > 100:
+                if frameq.full():
                     with frameq.mutex:
                         frameq.queue.clear()
-                    print("thread2: cleared queue as length exceeds 100")
-                print("thread2: added to queue, " + str(size))
+                frameq.put(frame_)
+

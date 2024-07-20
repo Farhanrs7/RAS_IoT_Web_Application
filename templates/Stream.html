@@ -12,36 +12,48 @@
         <div id="server" class="w-100">
           <h4>AI Processed</h4>
           <video style="width:100%; display:none"  onerror="this.style.display='none'" class="server-view" autoPlay playsInline controls title="From Server"></video>
-          <img style="width:100%" onerror="this.style.display='none'" src="{{ url_for('views.video_feed') }}"/>
+          <img id="ai-img" style="width:100%" onerror="this.style.display='none'"/>
         </div>
       </div>
+        <button style="width:fit-content" id="collapse-button" class="btn btn-dark"  data-toggle="collapse"
+                data-target="#collapseExample"><span class="arrow down">▼</span></button>
+
       <form>
-        <div class="form-group">
-          <label for="region">Region Name</label>
-          <input type="text" id="region" placeholder="region name ..." class="form-control valid" autocomplete="off">
-          <datalist id="regionList"></datalist>
-        </div>
+          <div class="collapse" id="collapseExample">
+           <div class="form-group">
+              <label for="region">Region Name</label>
+              <input type="text" id="region" placeholder="region name ..."  class="form-control valid" autocomplete="on">
+              <datalist id="regionList"></datalist>
+           </div>
+              <div class="form-group">
+                  <label for="accessKeyId">Access Key</label>
+                  <input type="text" id="accessKeyId" placeholder="access key ..." class="form-control">
+              </div>
+              <div class="form-group">
+              <label for="secretAccessKey">Secret Access Key</label>
+              <input type="text" id="secretAccessKey" placeholder="secret access key ..." class="form-control">
+              </div>
+          </div>
         <div class="form-group">
           <label for="channelName">Channel Name</label>
           <input type="text" id="channelName" placeholder="channel name ..." class="form-control">
         </div>
-        <div class="form-group">
-          <label for="accessKeyId">Access Key</label>
-          <input type="text" id="accessKeyId" placeholder="access key ..." class="form-control">
-        </div>
-        <div class="form-group">
-          <label for="secretAccessKey">Secret Access Key</label>
-          <input type="text" id="secretAccessKey" placeholder="secret access key ..." class="form-control">
-        </div>
-
       </form>
       <div class="btn-group mx-auto" role="group">
         <button style="min-width:100px;width:10vw" id="stream-button" class="btn btn-primary" >Stream</button>
         <button style="min-width:100px;width:10vw" id="stop-stream-button" class="btn btn-secondary" >Stop</button>
       </div>
+      <div style="display:grid; row-gap: 10%; margin-top: 10%">
+          <input type="text" id="feed-amount" placeholder="Enter amount of food to feed (g)" class="form-control">
+          <button style="width:fit-content" id="feed-button" class="btn btn-warning" >Feed Now</button>
+          <label id="feed-label">Status : </label>
+      </div>
 
     </div>
   </section>
+<script>
+    var status ="unknown";
+</script>
 
 </body>
 {% endblock %}
