@@ -63,7 +63,7 @@ class Receiver():
                 break
             # print("thread2: waiting for frame bytes")
             frame_bytes_ = ffmpegOut.read(self.FRAME_HEIGHT * self.FRAME_WIDTH * 3)
-            ffmpegOut.flush()
+            # ffmpegOut.flush()
             if frame_bytes_ is not None:
                 # print("thread2: got frame_bytes")
                 frame_ = numpy.frombuffer(frame_bytes_, numpy.uint8).reshape([self.FRAME_HEIGHT, self.FRAME_WIDTH, 3])

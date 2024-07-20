@@ -88,6 +88,7 @@ def feed():
 
 @views.route('/video_feed')
 def video_feed():
+    print("doing vidoe feed")
     response = Response(gen(),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
     return response

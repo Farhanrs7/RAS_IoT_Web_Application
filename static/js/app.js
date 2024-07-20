@@ -46,6 +46,7 @@ $('#stream-button').click(async () => {
                 },
                 body: JSON.stringify({ param: formValues.channelName }),
                 });
+    $('#ai-img').attr("src","/video_feed");
     $('#server').removeClass('d-none');
     const form = $('#form');
     ROLE = 'viewer';
