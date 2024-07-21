@@ -39,21 +39,19 @@ $('#stop-stream-button').click(onStop);
 
 $('#stream-button').click(async () => {
     const formValues = getFormValues();
+    const remoteView = $('#viewer .remote-view')[0];
+    startViewer( remoteView, formValues);
+    $('#ai-img').attr("src",'/video_feed?'+ new Date().getTime());
     const a = fetch('/startStreaming', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ param: formValues.channelName }),
-                });
-    $('#ai-img').attr("src","/video_feed");
+                }).then(response=>response.json());
     $('#server').removeClass('d-none');
     const form = $('#form');
     ROLE = 'viewer';
-    const remoteView = $('#viewer .remote-view')[0];
-    startViewer( remoteView, formValues);
-
-
 });
 
 $('#feed-button').click(async () => {
@@ -71,7 +69,7 @@ $('#feed-button').click(async () => {
 
 
 function onStop() {
-    const a = fetch("/stopStreaming");
+    const a = fetch("/stopStreaming").then(response=>response.json()).then(data=>$('#ai-img').attr('src',''));
 
     if (!ROLE) {
         return;

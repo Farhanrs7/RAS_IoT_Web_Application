@@ -17,7 +17,7 @@ from google.cloud import firestore
 from datetime import datetime
 #from frameAi import AiModel
 
-# from realtime_detection import RealtimeDetection
+#from realtime_detection import RealtimeDetection
 views = Blueprint("views", __name__)
 
 # Set the path to your service account key file
@@ -37,7 +37,7 @@ receiver = None
 
 
 # model = AiModel()
-# model = RealtimeDetection()
+#model = RealtimeDetection()
 
 # receiver = Receiver(1280, 720)
 
@@ -57,14 +57,17 @@ def streamPage():
 @views.route('/startStreaming', methods=['POST','GET'])
 def startStreaming():
     channel_name = request.json.get('param')
+    print(channel_name)
     print("stream button clicked")
     global receiver
     if receiver is None:
+        time.sleep(5)
+        print("Sleeping for 5 seconds")
         receiver = Receiver(1280, 720,channel_name)
-    return {'success': True}
+    return jsonify({'success': True})
 
 
-@views.route('/stopStreaming')
+@views.route('/stopStreaming',methods=['POST','GET'])
 def stopStreaming():
     print("stop button clicked")
     global receiver
@@ -72,7 +75,7 @@ def stopStreaming():
         print("Stopping receiver")
         receiver.stop()
         receiver = None
-    return {'success': True}
+    return jsonify({'success': True})
 
 
 @views.route('/feed', methods=['POST', 'GET'])
@@ -88,7 +91,7 @@ def feed():
 
 @views.route('/video_feed')
 def video_feed():
-    print("doing vidoe feed")
+    # print("doing video feed")
     response = Response(gen(),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
     return response
@@ -97,6 +100,9 @@ def video_feed():
 def gen():
     while True:
         if receiver is not None:
+            if receiver.stop_thread:
+                print("Stopping yield")
+                break
             # print("waiting for queue")
             frame = receiver.frame_queue.get()
 
@@ -106,7 +112,7 @@ def gen():
             # if cv2.waitKey(1) & 0xFF == 27:
             #     cv2.destroyAllWindows()
             # break
-            # frame = model.process(frame)
+            #frame = model.process(frame)
             # frame = model.aiTask(frame)
 
             ret, buffer = cv2.imencode('.jpg', frame)
