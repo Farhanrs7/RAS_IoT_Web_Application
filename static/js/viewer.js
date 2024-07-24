@@ -83,7 +83,7 @@ export async function startViewer(remoteView, formValues) {
             .getSignalingChannelEndpoint({
                 ChannelARN: channelARN,
                 SingleMasterChannelEndpointConfiguration: {
-                    Protocols: ['WSS'],
+                    Protocols: ['WSS','HTTPS'],
                     Role: KVSWebRTC.Role.VIEWER,
                 },
             })
@@ -94,6 +94,33 @@ export async function startViewer(remoteView, formValues) {
             return endpoints;
         }, {});
         console.log('[VIEWER] Endpoints:', endpointsByProtocol);
+
+        const kinesisVideoSignalingChannelsClient = new AWS.KinesisVideoSignalingChannels({
+            region: formValues.region,
+            accessKeyId: formValues.accessKeyId,
+            secretAccessKey: formValues.secretAccessKey,
+            endpoint: endpointsByProtocol.HTTPS,
+            correctClockSkew: true,
+        });
+
+        const getIceServerConfigResponse = await kinesisVideoSignalingChannelsClient.getIceServerConfig({
+            ChannelARN: channelARN,
+        }).promise();
+
+        const iceServers = [];
+
+        iceServers.push({ urls: `stun:stun.kinesisvideo.${formValues.region}.amazonaws.com:443` });
+
+        getIceServerConfigResponse.IceServerList.forEach(iceServer =>
+            iceServers.push({
+                urls: iceServer.Uris,
+                username: iceServer.Username,
+                credential: iceServer.Password,
+            }),
+        );
+
+        console.log('[VIEWER] ICE servers:', iceServers);
+
 
         // Create Signaling Client
         viewer.signalingClient = new KVSWebRTC.SignalingClient({
@@ -110,6 +137,7 @@ export async function startViewer(remoteView, formValues) {
             systemClockOffset: kinesisVideoClient.config.systemClockOffset,
         });
 
+
 //        const resolution = formValues.widescreen
 //            ? {
 //                  width: { ideal: 1280 },
@@ -121,7 +149,11 @@ export async function startViewer(remoteView, formValues) {
 //            audio: false,
 //        };
 
-        viewer.peerConnection = new RTCPeerConnection();
+        const configuration = {
+            iceServers,
+        };
+
+        viewer.peerConnection = new RTCPeerConnection(configuration);
 
 
         viewer.signalingClient.on('open', async () => {
