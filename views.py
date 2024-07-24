@@ -27,6 +27,7 @@ os.environ[
 db = firestore.Client()
 
 feedDoc = db.collection("feeding").document("signals")
+configDoc = db.collection("KinesisVideoStream").document("Configuration")
 
 
 # frame = None
@@ -51,7 +52,7 @@ def mainPage():
 
 @views.route('/Stream', methods=['POST', 'GET'])
 def streamPage():
-    return render_template('Stream.html')
+    return render_template('Stream.html', **configDoc.get().to_dict())
 
 
 @views.route('/startStreaming', methods=['POST','GET'])
